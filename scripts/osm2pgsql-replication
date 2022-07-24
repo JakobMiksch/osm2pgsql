@@ -383,7 +383,7 @@ def update(conn, args):
         
         if srid is None:
             LOG.fatal("Could not find the SRID of the data.")
-            return
+            return 1
 
     LOG.debug("SRID of data: {}".format(srid))
 
