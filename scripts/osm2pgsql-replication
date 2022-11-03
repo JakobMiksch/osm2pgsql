@@ -467,6 +467,8 @@ def get_parser():
                           formatter_class=RawDescriptionHelpFormatter,
                           add_help=False)
     grp = cmd.add_argument_group('Replication source arguments')
+    grp.add_argument('--middle-schema', metavar='MIDDLE_SCHEMA', default='public', 
+                    help='TODO')
     srcgrp = grp.add_mutually_exclusive_group()
     srcgrp.add_argument('--osm-file', metavar='FILE',
                         help='Get replication information from the given file.')
@@ -531,6 +533,7 @@ def main():
                         datefmt='%Y-%m-%d %H:%M:%S',
                         level=max(4 - args.verbose, 1) * 10)
 
+    # TODO: add middle-schema here
     args.table_name = f'{args.prefix}_replication_status'
     args.table = sql.Identifier(args.table_name)
 
