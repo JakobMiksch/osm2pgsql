@@ -86,8 +86,12 @@ def connect(args):
                            host=args.host, port=args.port)
 
 
-def table_exists(conn, table_name):
+def table_exists(conn, table_name, schema_name=None):
     with conn.cursor() as cur:
+        if schema_name:
+            cur.execute('SELECT * FROM pg_tables where tablename = %s and schemaname = %s ', (table_name, schema_name))
+            pass
+        else:
         cur.execute('SELECT * FROM pg_tables where tablename = %s', (table_name, ))
         return cur.rowcount > 0
 
@@ -206,7 +210,7 @@ def status(conn, args):
 
     results = {}
 
-    if not table_exists(conn, args.table_name):
+    if not table_exists(conn, args.table_name, args.middle_schema):
         results['status'] = 1
         results['error'] = "Cannot find replication status table. Run 'osm2pgsql-replication init' first."
     else:
@@ -350,7 +354,7 @@ def update(conn, args):
     may be missing in the rare case that the replication service stops responding
     after the updates have been downloaded.
     """
-    if not table_exists(conn, args.table_name):
+    if not table_exists(conn, args.table_name, args.middle_schema):
         LOG.fatal("Cannot find replication status table. "
                   "Run 'osm2pgsql-replication init' first.")
         return 1
@@ -459,6 +463,8 @@ def get_parser():
                        help='Database server port')
     group.add_argument('-p', '--prefix', metavar='PREFIX', default='planet_osm',
                        help="Prefix for table names (default 'planet_osm')")
+    group.add_argument('--middle-schema', metavar='MIDDLE_SCHEMA', default='public', 
+                    help='Name of the schema to store the status table in')
 
     # Arguments for init
     cmd = subs.add_parser('init', parents=[default_args],
@@ -467,8 +473,6 @@ def get_parser():
                           formatter_class=RawDescriptionHelpFormatter,
                           add_help=False)
     grp = cmd.add_argument_group('Replication source arguments')
-    grp.add_argument('--middle-schema', metavar='MIDDLE_SCHEMA', default='public', 
-                    help='TODO')
     srcgrp = grp.add_mutually_exclusive_group()
     srcgrp.add_argument('--osm-file', metavar='FILE',
                         help='Get replication information from the given file.')
@@ -533,9 +537,8 @@ def main():
                         datefmt='%Y-%m-%d %H:%M:%S',
                         level=max(4 - args.verbose, 1) * 10)
 
-    # TODO: add middle-schema here
     args.table_name = f'{args.prefix}_replication_status'
-    args.table = sql.Identifier(args.table_name)
+    args.table = sql.Identifier(args.middle_schema, args.table_name)
 
     conn = connect(args)
 
