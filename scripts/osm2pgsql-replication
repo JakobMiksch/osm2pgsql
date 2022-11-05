@@ -90,9 +90,8 @@ def table_exists(conn, table_name, schema_name=None):
     with conn.cursor() as cur:
         if schema_name is not None:
             cur.execute('SELECT * FROM pg_tables where tablename = %s and schemaname = %s ', (table_name, schema_name))
-            pass
         else:
-        cur.execute('SELECT * FROM pg_tables where tablename = %s', (table_name, ))
+            cur.execute('SELECT * FROM pg_tables where tablename = %s', (table_name, ))
         return cur.rowcount > 0
 
 
