@@ -145,7 +145,7 @@ behave -DBINARY=<your build directory>/osm2pgsql
 ```
 
 Per default, behave assumes that the build directory is under `osm2pgsql/build`.
-If your setup works like that, you can leave out the -D parameter.
+If your setup works like that, you can leave out the `-D` parameter.
 
 To make this a bit easier a shell script `run-behave` is provided in your
 build directory which sets those correct paths and calls `behave`. If run
@@ -177,6 +177,16 @@ with `pg_virtualenv bash` and run behave from there.
 The BDDs automatically detect if osm2pgsql was compiled with Lua and
 proj support and skip tests accordingly. They also check for the test
 tablespace `tablespacetest` for tests that need tablespaces.
+
+BDD tests hide print statements by default. For development purposes they
+can be shown by adding these line to `tests/bdd/.behaverc`:
+
+```
+color=False
+stdout_capture=False
+stderr_capture=False
+log_capture=False
+```
 
 ## Coverage reports
 
