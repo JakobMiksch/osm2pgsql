@@ -72,6 +72,23 @@ def run_osm2pgsql(context, output):
 
     return proc.returncode
 
+
+def run_osm2pgsql_replication(context):
+    cmdline = [str(Path(context.config.userdata['REPLICATION_SCRIPT']).resolve())]
+    if context.table:
+        cmdline.extend(f for f in context.table.headings if f)
+        for row in context.table:
+            cmdline.extend(f.format(**context.config.userdata) for f in row if f)
+
+    proc = subprocess.Popen(cmdline, cwd=str(context.workdir),
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    proc.communicate()
+
+    return proc.returncode
+
+
 @given("no lua tagtransform")
 def do_not_setup_tagtransform(context):
     pass
@@ -125,6 +142,14 @@ def execute_osm2pgsql_with_failure(context, output):
         return
 
     assert returncode != 0, "osm2pgsql unexpectedly succeeded"
+
+
+@when("running osm2pgsql-replication")
+def execute_osm2pgsql_replication_sucessfully(context):
+    returncode = run_osm2pgsql_replication(context)
+
+    assert returncode == 0,\
+           f"osm2pgsql-replication failed with error code {returncode}.\n"
 
 
 @then("the (?P<kind>\w+) output contains")
