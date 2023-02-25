@@ -179,7 +179,7 @@ proj support and skip tests accordingly. They also check for the test
 tablespace `tablespacetest` for tests that need tablespaces.
 
 BDD tests hide print statements by default. For development purposes they
-can be shown by adding these line to `tests/bdd/.behaverc`:
+can be shown by adding these lines to `tests/bdd/.behaverc`:
 
 ```
 color=False
