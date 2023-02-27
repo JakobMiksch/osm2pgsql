@@ -38,8 +38,9 @@ def run_osm2pgsql(context, output):
     cmdline.extend(('-O', output))
     cmdline.extend(context.osm2pgsql_params)
 
+    # convert table items to CLI arguments and inject constants to placeholders
     if context.table:
-        cmdline.extend(f for f in context.table.headings if f)
+        cmdline.extend(f.format(**context.config.userdata) for f in context.table.headings if f)
         for row in context.table:
             cmdline.extend(f.format(**context.config.userdata) for f in row if f)
 
